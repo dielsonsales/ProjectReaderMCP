@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 import re
 from fastmcp import FastMCP
@@ -13,7 +14,7 @@ mcp = FastMCP("Project Reader")
 @mcp.tool
 def list_files() -> list[str]:
     """
-    List all files in the project directory.
+    Recursively lists all files in the project directory, excluding some specified directories.
 
     Args:
         None (stateless tool).
@@ -25,15 +26,23 @@ def list_files() -> list[str]:
         a single descriptive error message string. If the directory is empty, 
         returns ["No files found in directory"].
     """
-    target_dir = PROJECT_DIR
+    project_root = Path(PROJECT_DIR)
+    if not project_root.exists() or not project_root.is_dir():
+        return [f"Error: Project directory '{PROJECT_DIR}' does not exist or is not a directory."]
+
+    files = []
+    excluded_dirs = {".git", "__pycache__", "venv", ".vscode", "node_modules"}
+
     try:
-        if not os.path.exists(target_dir):
-            return [f"Error: Directory {target_dir} doesn't exist."]
-        files = [f for f in os.listdir(target_dir) if os.path.isfile(os.path.join(target_dir, f))]
-        return files if files else ["No files found in directory"]
+        for path in project_root.rglob("*"):
+            if path.is_file() and not any(excluded in path.parts for excluded in excluded_dirs):
+                relative_path = path.relative_to(project_root)
+                files.append(str(relative_path))
 
     except Exception as e:
         return [f"Error listing files: {e}"]
+
+    return files if files else ["No files found in directory"]
 
 
 @mcp.tool
