@@ -49,7 +49,7 @@ Edit your `mcp.json` file to look like this:
 {
   "mcpServers": {
     "project_reader": {
-      "command": "/path/to/your/project/directory/project-reader-mcp/env/bin/python",
+      "command": "/path/to/your/project/directory/project-reader-mcp/venv/bin/python",
       "args": [
         "/path/to/your/project/directory/project-reader-mcp/server.py"
       ]
