@@ -1,6 +1,6 @@
 # Project Reader MCP Server
 
-This repository implements a Micro-Control Plane (MCP) server designed to expose filesystem operations as callable tools to an AI agent. It provides controlled, sandboxed access to read directory contents and file contents within a specified project root.
+This repository implements a Model Context Protocol (MCP) server designed to expose filesystem operations as callable tools to an AI agent. It provides controlled, sandboxed access to read directory contents and file contents within a specified project root.
 
 ## Getting Started
 
