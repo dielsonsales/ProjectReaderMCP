@@ -20,3 +20,9 @@ Build an MCP server that enables LLM agents to read, search, and navigate a proj
   - Return better error structures instead of single string starting with `"Error"`.
   - Add some `git` tools so the agent can see what's dirty in the directory and see the diff.
 
+## Tasks
+
+[x] Add metadata information in the `list_files` tool function.
+[ ] Implement a new tool function `read_lines` that reads specific line ranges from a file.
+[ ] Refactor error handling to return structured error information instead of plain strings.
+[ ] Implement git-related tools for checking dirty files and viewing diffs.

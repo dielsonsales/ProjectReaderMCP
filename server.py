@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import re
 from fastmcp import FastMCP
+import time
 
 
 load_dotenv()
@@ -11,8 +12,15 @@ PROJECT_DIR = os.environ.get("PROJECT_DIR")
 mcp = FastMCP("Project Reader")
 
 
+def format_timestamp(timestamp: float) -> str:
+    """
+    Converts a UNIX timestamp to a human-readable string format in UTC.
+    """
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(timestamp))
+
+
 @mcp.tool
-def list_files() -> list[str]:
+def list_files() -> list[tuple[str, dict] | str]:
     """
     Recursively lists all files in the project directory, excluding some specified directories.
 
@@ -20,7 +28,10 @@ def list_files() -> list[str]:
         None (stateless tool).
 
     Returns:
-        A list of strings. Each string is a filename relative to the project root.
+        A list of tuples with filename and a dictionary of metadata.
+
+        The filename is a string relative to the project root. The metadata is a dictionary containing file size in
+        bytes and last modified timestamp.
 
         If the directory doesn't exist or an error occurs, the list contains 
         a single descriptive error message string. If the directory is empty, 
@@ -31,13 +42,15 @@ def list_files() -> list[str]:
         return [f"Error: Project directory '{PROJECT_DIR}' does not exist or is not a directory."]
 
     files = []
-    excluded_dirs = {".git", "__pycache__", "venv", ".vscode", "node_modules"}
+    excluded_dirs = {".git", "__pycache__", ".pytest_cache", "venv", ".vscode", "node_modules"}
 
     try:
         for path in project_root.rglob("*"):
             if path.is_file() and not any(excluded in path.parts for excluded in excluded_dirs):
                 relative_path = path.relative_to(project_root)
-                files.append(str(relative_path))
+                file_size = path.stat().st_size
+                last_modified = format_timestamp(path.stat().st_mtime)
+                files.append((str(relative_path), {"size": file_size, "last_modified": last_modified}))
 
     except Exception as e:
         return [f"Error listing files: {e}"]
