@@ -130,7 +130,11 @@ def recursive_search(pattern: str) -> list[tuple[str, int, str]]:
     if not target_files:
         return [(0, 0, "No files found to search")]
 
-    for filename in target_files:
+    for item in target_files:
+        if isinstance(item, tuple):
+            filename = item[0]
+        else:
+            filename = item
         matches = _search_single_file(filename, pattern)
         all_matches.extend(matches)
 
