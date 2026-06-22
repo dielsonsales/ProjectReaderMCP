@@ -52,6 +52,7 @@ def read_file(filename: str) -> str:
 
     Args:
         filename (str): The name of the file to read relative to the project root.
+                        Can include subdirectories (e.g., "src/utils/helper.py").
 
     Returns:
         str: The full text content of the file encoded as UTF-8.
