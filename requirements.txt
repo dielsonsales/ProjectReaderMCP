@@ -1,2 +1,3 @@
 fastmcp==3.4.2
+pathspec==1.1.1 # for reading .gitignore syntax
 pytest==9.1.1
