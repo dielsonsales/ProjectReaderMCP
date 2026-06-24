@@ -11,15 +11,15 @@ def get_gitignore_matcher(project_dir: str) -> pathspec.PathSpec:
 
     if not gitignore_path.exists():
         # Returns an empty matcher
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, [])
+        return pathspec.PathSpec.from_lines(pathspec.patterns.gitignore.spec.GitIgnoreSpecPattern, [])
 
     try:
         with open(gitignore_path, "r") as f:
             content = f.read().splitlines()
-            return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, content)
+            return pathspec.PathSpec.from_lines(pathspec.patterns.gitignore.spec.GitIgnoreSpecPattern, content)
     except Exception as e:
         print(f"Warning: Could not read .gitignore due to error: {e}")
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, [])
+        return pathspec.PathSpec.from_lines(pathspec.patterns.gitignore.spec.GitIgnoreSpecPattern, [])
 
 
 def is_ignored(file_path: Path, project_root: Path, matcher: pathspec.PathSpec) -> bool:
