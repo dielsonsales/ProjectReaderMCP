@@ -5,6 +5,7 @@ import re
 from fastmcp import FastMCP
 import time
 from utils.text_edit_utils import insert_text as insert_text_in_file
+from utils.file_utils import read_lines as read_lines_in_file
 from utils.text_edit_utils import replace_text as replace_text_in_file
 
 
@@ -83,8 +84,8 @@ def list_files() -> list[tuple[str, dict] | str]:
         The filename is a string relative to the project root. The metadata is a dictionary containing file size in
         bytes and last modified timestamp.
 
-        If the directory doesn't exist or an error occurs, the list contains 
-        a single descriptive error message string. If the directory is empty, 
+        If the directory doesn't exist or an error occurs, the list contains
+        a single descriptive error message string. If the directory is empty,
         returns ["No files found in directory"].
     """
     try:
@@ -167,6 +168,52 @@ def replace_text(filename: str, old_text: str, new_text: str, dry_run: bool = Fa
     return _run_text_edit(
         filename, dry_run, replace_text_in_file, old_text, new_text
     )
+
+
+@mcp.tool
+def read_lines(filename: str, start_line: int, end_line: int) -> str:
+    """
+    Read a contiguous range of lines from a project file.
+
+    Args:
+        filename (str): The name of the file to read relative to the project root.
+                        Can include subdirectories (e.g., "src/utils/helper.py").
+        start_line (int): 1-based inclusive starting line number. Must be >= 1 and <= end_line.
+        end_line (int): 1-based inclusive ending line number. May extend beyond EOF;
+                        lines beyond the file's end are ignored (not an error).
+
+    Returns:
+        str: The selected lines with original line terminators (LF or CRLF) preserved.
+
+            If the file is not found, returns an error message string starting with "Error:".
+            If line numbers are invalid (non-integer, < 1, or start > end), returns an error.
+            If start_line is beyond EOF, returns an empty string (not an error).
+
+    Note:
+        - Line numbers are 1-based and inclusive.
+        - end_line may extend beyond EOF; only available lines through EOF are returned.
+        - Line terminators (LF or CRLF) are preserved exactly as in the source file.
+        - Invalid UTF-8 in selected lines returns an error; invalid UTF-8 in skipped lines is ignored.
+    """
+    try:
+        project_root = _get_project_root()
+        file_path = _resolve_project_path(project_root, filename)
+
+        if not file_path.is_file():
+            return f"Error: File '{filename}' is not a regular file."
+
+        success, result = read_lines_in_file(file_path, start_line, end_line)
+
+        if success:
+            return result
+        else:
+            return result
+
+    except ValueError as e:
+        return f"Error: {e}"
+    except Exception as e:
+        return f"Error reading lines from '{filename}': {e}"
+
 
 
 @mcp.tool
